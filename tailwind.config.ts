@@ -7,9 +7,20 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
+    colors: {
+      navy: "#213147",
+      "electric-blue": "#12AAFF",
+      "sky-blue": "#9DCCED",
+      moon: "#E5E5E5",
+      white: "#FFFFFF",
+      red: "#FF0000",
+      orange: "#FFA500",
+      green: "#008000",
+      yellow: "#FFFF00",
+    },
     container: {
       center: true,
       padding: "2rem",
