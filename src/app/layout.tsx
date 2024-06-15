@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TmaSDKProvider } from "@/components/tma";
-
+import Header from "@/components/shared/Header";
+import Footer from "@/components/shared/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,8 +18,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <TmaSDKProvider>{children}</TmaSDKProvider>
+      <body className={`${inter.className}  bg-navy text-white`}>
+        <TmaSDKProvider>
+          <Header />
+          {children}
+          <Footer />
+        </TmaSDKProvider>
       </body>
     </html>
   );
