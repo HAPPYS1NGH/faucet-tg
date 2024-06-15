@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-slot": "^1.0.2",
     "@tma.js/sdk": "^1.5.3",
     "@tma.js/sdk-react": "^2.0.3",
     "class-variance-authority": "^0.7.0",
@@ -18,7 +20,9 @@
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "telegram-webapps-types": "^1.0.5",
+    "vaul": "^0.9.1"
   },
   "devDependencies": {
     "@types/node": "^20",
