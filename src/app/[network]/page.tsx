@@ -1,10 +1,14 @@
-"use client";
 import React from "react";
-import { Button } from "@/components/ui/button";
 import Confirm from "@/components/faucet/Confirm";
 
-function Page({ params }: { params: { network: string } }) {
+async function fetcher(url: string) {
+  const res = await fetch(url);
+  return res.json();
+}
+async function Page({ params }: { params: { network: string } }) {
   const { network } = params;
+  const data = await fetcher(`http://localhost:3000/api/${network}`);
+  console.log(data);
 
   return (
     <main className="flex  flex-col items-center justify-between">
@@ -16,11 +20,11 @@ function Page({ params }: { params: { network: string } }) {
           <div className="flex  justify-around items-center  gap-10 mb-10">
             <div className="p-4 rounded-xl bg-moon font-black text-navy ">
               <h4 className="text-xl">Block Num</h4>
-              <p>12313123</p>
+              <p>{data.blockNumber}</p>
             </div>
             <div className="p-4 rounded-xl bg-moon font-black text-navy ">
               <h4 className="text-xl">Gas Fees</h4>
-              <p>0.22 Wei</p>
+              <p>{data.gasPrice}</p>
             </div>
           </div>
           <div className="flex  justify-around items-center  gap-10 mb-10">
@@ -34,7 +38,7 @@ function Page({ params }: { params: { network: string } }) {
             </div>
           </div>
         </div>
-        <Confirm />
+        <Confirm network={network} />
         {/* <Input name="address" placeholder="0xdb5..." /> */}
       </div>
     </main>

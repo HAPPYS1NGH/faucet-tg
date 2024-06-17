@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
 
-function Confirm() {
+function Confirm({ network }: { network: string }) {
   const mainBtn = useMainButton();
+
   function handleClick() {
     mainBtn.enable();
     mainBtn.setParams({
@@ -40,10 +41,12 @@ function Confirm() {
   }
 
   async function handleFaucet() {
+    mainBtn.showLoader();
     mainBtn.setBackgroundColor("#828493");
     setTimeout(async () => {
       console.log("Faucet Requested");
       mainBtn.setBackgroundColor("#12AAdf");
+      mainBtn.hideLoader();
     }, 2000);
   }
   return (
