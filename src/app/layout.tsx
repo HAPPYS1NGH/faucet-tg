@@ -5,6 +5,7 @@ import { TmaSDKProvider } from "@/components/tma";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 const inter = Inter({ subsets: ["latin"] });
+import Web3ModalProvider from "@/context";
 
 export const metadata: Metadata = {
   title: "My Telegram Mini App",
@@ -20,9 +21,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className}  bg-navy text-white`}>
         <TmaSDKProvider>
-          <Header />
-          {children}
-          <Footer />
+          <Web3ModalProvider>
+            <Header />
+            {children}
+            <Footer />
+          </Web3ModalProvider>
         </TmaSDKProvider>
       </body>
     </html>
