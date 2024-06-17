@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useBackButton, useClosingBehavior } from "@tma.js/sdk-react";
+import { useBackButton, useClosingBehavior, useViewport } from "@tma.js/sdk-react";
 import { useEffect } from "react";
 
 
 export function useBackBtn() {
     const bb = useBackButton(); // will be undefined or BackButton.
     const close = useClosingBehavior(); // will be undefined or ClosingBehavior.
+    const viewport = useViewport(); // will be undefined or InitData.
     const router = useRouter();
     const pathname = usePathname();
     useEffect(() => {
@@ -17,7 +18,9 @@ export function useBackBtn() {
         if (close) {
             close.enableConfirmation()
         }
-
+        if (viewport) {
+            viewport.expand()
+        }
         if (bb) {
             if (pathname === "/") {
                 bb.hide();
