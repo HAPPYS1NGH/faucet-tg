@@ -12,7 +12,7 @@ const config = {
   theme: {
     colors: {
       navy: "#213147",
-      "electric-blue": "#12AAFF",
+      "electric-blue": "#12AAff",
       "sky-blue": "#9DCCED",
       moon: "#E5E5E5",
       white: "#FFFFFF",
