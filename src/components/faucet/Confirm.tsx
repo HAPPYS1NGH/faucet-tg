@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect } from "react";
-import { useMainButton } from "@tma.js/sdk-react";
+import React, { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import { useMainButton, useInitData, useUtils } from "@tma.js/sdk-react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -14,26 +15,33 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
+import { canDripTokens, dripTokensToAddress } from "@/helpers/contract";
 
-function Confirm({ network }: { network: string }) {
+function Confirm({ network }: { network: network }) {
   const mainBtn = useMainButton();
+  const initData = useInitData();
+  const { address } = useAccount();
+  const [add, setAdd] = useState(address);
+  const [username, setUsername] = useState("hhhhhh");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   function handleClick() {
     mainBtn.enable();
-    mainBtn.setParams({
-      backgroundColor: "#12AAdf",
-      text: "Get Testnet Tokens",
-      isVisible: true,
-    });
   }
+
   useEffect(() => {
     if (!mainBtn) return;
     mainBtn.on("click", handleFaucet);
-
     return () => {
       mainBtn.off("click", handleFaucet);
     };
   }, [mainBtn]);
+
+  useEffect(() => {
+    if (!initData || !initData.user?.username) return;
+    // setUsername(initData.user?.username);
+  }, [initData]);
 
   function handleClose() {
     mainBtn.disable();
@@ -42,13 +50,52 @@ function Confirm({ network }: { network: string }) {
 
   async function handleFaucet() {
     mainBtn.showLoader();
-    mainBtn.setBackgroundColor("#828493");
-    setTimeout(async () => {
+    mainBtn.setBgColor("#12AAdf");
+    mainBtn.disable();
+
+    try {
       console.log("Faucet Requested");
-      mainBtn.setBackgroundColor("#12AAdf");
+      const checkResult = await canDripTokens(
+        add as `0x${string}`,
+        username,
+        network
+      );
+      if (checkResult !== true) {
+        setError(checkResult);
+        mainBtn.hideLoader();
+        mainBtn.setBgColor("#12AAdf");
+        return;
+      }
+
+      const result = await dripTokensToAddress(
+        add as `0x${string}`,
+        username,
+        5000000000000000n,
+        network
+      );
+      if (typeof result === "string") {
+        console.log("Transaction Hash:", result);
+        setSuccess("Transaction Hash :" + result);
+        mainBtn.setBgColor("#008000");
+        mainBtn.disable();
+        mainBtn.setParams({
+          bgColor: "#12AAdf",
+          text: "Get Testnet Tokens",
+          isVisible: true,
+        });
+        setError(null);
+      } else {
+        throw new Error("Failed to send tokens");
+      }
+    } catch (error: any) {
+      console.error("Error in handleFaucet:", error);
+      setError(error.message || "An unknown error occurred");
+    } finally {
+      mainBtn.setBgColor("#12AAdf");
       mainBtn.hideLoader();
-    }, 2000);
+    }
   }
+
   return (
     <div>
       <Drawer onClose={handleClose}>
@@ -82,7 +129,11 @@ function Confirm({ network }: { network: string }) {
                 name="address"
                 placeholder="0xdb1.."
                 className="w-full -mb-4"
+                value={add}
+                onChange={(e: any) => setAdd(e.target.value)}
               />
+
+              {error && <p className="text-red text-sm">{error}</p>}
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
