@@ -5,7 +5,7 @@ async function fetcher(url: string) {
   const res = await fetch(url);
   return res.json();
 }
-async function Page({ params }: { params: { network: string } }) {
+async function Page({ params }: { params: { network: network } }) {
   const { network } = params;
   const data = await fetcher(`http://localhost:3000/api/${network}`);
   console.log(data);
