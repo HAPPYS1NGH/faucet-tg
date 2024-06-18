@@ -101,18 +101,22 @@ export const canDripTokens = async (
     try {
         // Check if the address has already received tokens in the last 24 hours
         const hasAddressReceived = await isTokenDrippedToAddressInLast24Hours(address, network);
+        console.log("hasAddressReceived", hasAddressReceived);
+
         if (hasAddressReceived) {
             return "Tokens have already been dripped to this address within the last 24 hours.";
         }
 
         // Check if the username has already received tokens in the last 24 hours
         const hasUsernameReceived = await isTokenDrippedToUsernameInLast24Hours(usernameBytes, network);
+        console.log("hasUsernameReceived", hasUsernameReceived);
         if (hasUsernameReceived) {
             return "Tokens have already been dripped to this username within the last 24 hours.";
         }
 
         // Check if the address has a balance above the threshold
         const hasEnoughFunds = await isBalanceAboveThreshold(address, network);
+        console.log("hasEnoughFunds", hasEnoughFunds);
         if (hasEnoughFunds) {
             return "The address balance is above the threshold.";
         }

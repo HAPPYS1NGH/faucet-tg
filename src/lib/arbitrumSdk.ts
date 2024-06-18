@@ -1,9 +1,9 @@
 export async function getLastTransactionTimestampForAddress(
-    fromAddress: string,
+    toAddress: string,
     network: string
 ) {
     console.log("GET request made");
-    console.log("fromAddress", fromAddress);
+    console.log("toAddress", toAddress);
     console.log("network", network);
     let RPC = "";
     if (network === "sepolia") {
@@ -18,13 +18,15 @@ export async function getLastTransactionTimestampForAddress(
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                id: 1,
                 jsonrpc: "2.0",
                 method: "alchemy_getAssetTransfers",
                 params: [
                     {
                         fromBlock: "0x0",
                         toBlock: "latest",
-                        fromAddress: fromAddress,
+                        fromAddress: "0x15413cd3bb0d8bcb88a70ae3679f68dd7e5194fb",
+                        toAddress: toAddress,
                         category: ["external"],
                         order: "desc",
                         withMetadata: true,
