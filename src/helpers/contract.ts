@@ -1,3 +1,4 @@
+"use server"
 import { config } from "../constants";
 import { getChainClient } from "@/lib/client";
 
@@ -25,7 +26,8 @@ export const isTokenDrippedToUsernameInLast24Hours = async (
     const client: any = getChainClient(network);
 
     // Convert the username to bytes
-    const usernameBytes = new TextEncoder().encode(username);
+    const usernameEncode = new TextEncoder().encode(username);
+    const usernameBytes = `0x${usernameEncode.toString().replace(/,/g, "").replace(/ /g, "").replace(/0x/g, "")}`
 
     const hasReceivedWithin24Hours = await client.readContract({
         address: contract.address as `0x${string}`,
@@ -65,7 +67,9 @@ export const dripTokensToAddress = async (
         const client: any = getChainClient(network, true);
 
         // Convert the username to bytes
-        const usernameBytes = new TextEncoder().encode(username);
+        const usernameEncode = new TextEncoder().encode(username);
+        const usernameBytes = `0x${usernameEncode.toString().replace(/,/g, "").replace(/ /g, "").replace(/0x/g, "")}`
+
 
         const { request } = await client.simulateContract({
             address: contract.address as `0x${string}`,
@@ -91,6 +95,9 @@ export const canDripTokens = async (
     username: string,
     network: network
 ): Promise<true | string> => {
+    const usernameEncode = new TextEncoder().encode(username);
+    const usernameBytes = `0x${usernameEncode.toString().replace(/,/g, "").replace(/ /g, "").replace(/0x/g, "")}`
+
     try {
         // Check if the address has already received tokens in the last 24 hours
         const hasAddressReceived = await isTokenDrippedToAddressInLast24Hours(address, network);
@@ -99,7 +106,7 @@ export const canDripTokens = async (
         }
 
         // Check if the username has already received tokens in the last 24 hours
-        const hasUsernameReceived = await isTokenDrippedToUsernameInLast24Hours(username, network);
+        const hasUsernameReceived = await isTokenDrippedToUsernameInLast24Hours(usernameBytes, network);
         if (hasUsernameReceived) {
             return "Tokens have already been dripped to this username within the last 24 hours.";
         }
