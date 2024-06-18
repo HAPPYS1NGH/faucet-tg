@@ -1,13 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAccount } from "wagmi";
-import { useMainButton, useUtils } from "@tma.js/sdk-react";
+import { useMainButton } from "@tma.js/sdk-react";
 import { retrieveLaunchParams } from "@tma.js/sdk";
 
 import { Input } from "@/components/ui/input";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -15,7 +14,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Button } from "../ui/button";
 
 import { canDripTokens, dripTokensToAddress } from "@/helpers/contract";
 
@@ -27,11 +25,22 @@ function Confirm2({ network }: { network: string }) {
   const username = user?.username;
 
   const { address } = useAccount();
-  const [add, setAdd] = useState(address);
+  const [add, setAdd] = useState(address || "");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const addRef = useRef(add);
 
-  function handleClick() {
+  useEffect(() => {
+    if (address) {
+      setAdd(address);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    addRef.current = add;
+  }, [add]);
+
+  const handleClick = () => {
     mainBtn.enable();
     mainBtn.setParams({
       bgColor: "#12AAdf",
@@ -39,133 +48,142 @@ function Confirm2({ network }: { network: string }) {
       isVisible: true,
     });
     mainBtn.show();
-  }
-  useEffect(() => {
-    if (!address) return;
-    setAdd(address);
-  }, [address]);
+  };
 
   useEffect(() => {
     if (!mainBtn) return;
+    const handleFaucet = async () => {
+      console.log("Faucet Requested");
+
+      mainBtn.showLoader();
+      mainBtn.setBgColor("#72AAdf");
+      mainBtn.disable();
+
+      console.log("Username", username);
+      if (!username) {
+        setError("Username is required");
+        mainBtn.hideLoader();
+        mainBtn.setBgColor("#12AAdf");
+        mainBtn.enable();
+        return;
+      }
+      console.log("Address", addRef.current);
+
+      if (!addRef.current) {
+        setError("Address is required");
+        mainBtn.hideLoader();
+        mainBtn.setBgColor("#12AAdf");
+        mainBtn.enable();
+        return;
+      }
+
+      if (addRef.current.length !== 42) {
+        setError("Invalid Address");
+        mainBtn.hideLoader();
+        mainBtn.setBgColor("#12AAdf");
+        mainBtn.enable();
+        return;
+      }
+      try {
+        const checkResult = await canDripTokens(
+          addRef.current as `0x${string}`,
+          username,
+          networkName
+        );
+
+        console.log("Check Result", checkResult);
+
+        if (checkResult !== true) {
+          setError(checkResult);
+          mainBtn.hideLoader();
+          mainBtn.setBgColor("#12AAdf");
+          mainBtn.enable();
+          return;
+        }
+
+        const hash = await dripTokensToAddress(
+          addRef.current as `0x${string}`,
+          username,
+          10000000000000000n,
+          networkName
+        );
+        if (hash.substring(0, 2) !== "0x") {
+          setError(hash);
+          mainBtn.hideLoader();
+          mainBtn.setBgColor("#12AAdf");
+          mainBtn.enable();
+          return;
+        }
+        console.log("Hash", hash);
+        setSuccess(hash);
+      } catch (error: any) {
+        console.error("Error in dripTokensToAddress", error);
+        setError(error?.metaMessages[0]);
+      }
+      mainBtn.setBgColor("#12AAdf");
+      mainBtn.hideLoader();
+      mainBtn.enable();
+    };
+
     mainBtn.on("click", handleFaucet);
     return () => {
       mainBtn.off("click", handleFaucet);
     };
-  }, [mainBtn]);
+  }, [mainBtn, username, networkName]);
 
-  function handleClose() {
+  const handleClose = () => {
     mainBtn.disable();
     mainBtn.hide();
     setError(null);
     setSuccess(null);
-  }
-
-  async function handleFaucet() {
-    console.log("Faucet Requested");
-
-    mainBtn.showLoader();
-    mainBtn.setBgColor("#72AAdf");
-    mainBtn.disable();
-
-    console.log("Username", username);
-    if (!username) {
-      setError("Username is required" + user?.username);
-      mainBtn.hideLoader();
-      mainBtn.setBgColor("#12AAdf");
-      return;
-    }
-    console.log("Address", add);
-
-    if (!add) {
-      setError("Address is required");
-      mainBtn.hideLoader();
-      mainBtn.setBgColor("#12AAdf");
-      return;
-    }
-
-    if (add.length !== 42) {
-      setError("Invalid Address");
-      mainBtn.hideLoader();
-      mainBtn.setBgColor("#12AAdf");
-      return;
-    }
-    try {
-      const checkResult = await canDripTokens(
-        add as `0x${string}`,
-        username,
-        networkName
-      );
-
-      console.log("Check Result", checkResult);
-
-      if (checkResult !== true) {
-        setError(checkResult);
-        mainBtn.hideLoader();
-        mainBtn.setBgColor("#12AAdf");
-        return;
-      }
-
-      const hash = await dripTokensToAddress(
-        add as `0x${string}`,
-        username,
-        10000000000000000n,
-        networkName
-      );
-      console.log("Hash", hash);
-      setSuccess(hash);
-    } catch (error) {}
-    mainBtn.setBgColor("#12AAdf");
-    mainBtn.hideLoader();
-  }
+  };
 
   return (
     <div>
       <Drawer onClose={handleClose}>
-        <DrawerTrigger>
-          <Button variant="faucet" size="full" onClick={handleClick}>
-            Get the faucet Now
-          </Button>
+        <DrawerTrigger
+          onClick={handleClick}
+          className="hover:bg-[#12AAdf] text-black bg-electric-blue w-full rounded-xl px-8 py-4 "
+        >
+          Get the faucet Now
         </DrawerTrigger>
         <DrawerContent className="bg-sky-blue text-navy">
           <DrawerHeader>
-            <DrawerTitle className="text-3xl p-4 text-left">
+            <DrawerTitle className="text-3xl p-2 text-left">
               Request some faucet
             </DrawerTitle>
-            <DrawerDescription className="w-full text-left px-4 text-navy">
-              <div className="py-3">
-                <h4 className="text-lg mb-3">Guidelines</h4>
-                <div className="text-black tracking-tighter flex flex-col gap-2">
-                  <p>Faucet Drips every 24 hours</p>
-                  <p>
-                    Wallets with more than 0.01 Eth on Mainnet/ Arbitrum One
-                    will be dripped 0.2 ETH
-                  </p>
-                  <p>
-                    Wallets with less than 0.01 Eth on Mainnet/ Arbitrum One
-                    will be dripped 0.1 ETH
-                  </p>
-                </div>
-              </div>
-              <h1 className="mt-2 text-navy">Enter the Address @{username}</h1>
-              <Input
-                name="address"
-                placeholder="0xdb1.."
-                className="w-full "
-                value={add}
-                onChange={(e: any) => setAdd(e.target.value)}
-              />
-
-              {error && <p className="text-red text-sm">{error}</p>}
-              {success && <p className="text-green text-sm">{success}</p>}
-            </DrawerDescription>
           </DrawerHeader>
-          <DrawerFooter>
-            {/* <DrawerClose className="">
-              <Button variant="outline" size="small" onClick={handleClose}>
-                Cancel
-              </Button>
-            </DrawerClose> */}
-          </DrawerFooter>
+          <div className="w-full text-left px-6 text-navy">
+            <div className="">
+              <h4 className="text-lg mb-3">Guidelines</h4>
+              <div className="text-black tracking-tighter flex flex-col gap-2 text-sm">
+                <p>Faucet Drips every 24 hours</p>
+                <p>
+                  Wallets with more than 0.01 Eth on Mainnet/ Arbitrum One will
+                  be dripped 0.2 ETH
+                </p>
+                <p>
+                  Wallets with less than 0.01 Eth on Mainnet/ Arbitrum One will
+                  be dripped 0.1 ETH
+                </p>
+              </div>
+            </div>
+            <h1 className="mt-6 text-navy">Enter the Address @{username}</h1>
+            <Input
+              name="address"
+              placeholder="0xdb1.."
+              className="w-full"
+              value={add}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                console.log("Input Changed:", e.target.value);
+                setAdd(e.target.value as `0x${string}`);
+              }}
+            />
+
+            {error && <p className="text-red text-sm">{error}</p>}
+            {success && <p className="text-green text-sm">{success}</p>}
+          </div>
+          <DrawerFooter />
         </DrawerContent>
       </Drawer>
     </div>
