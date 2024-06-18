@@ -95,8 +95,8 @@ function Confirm2({ network }: { network: string }) {
       }
       const hash = await dripTokensToAddress(
         add as `0x${string}`,
-        "username1",
-        100000000000000n,
+        username,
+        10000000000000000n,
         networkName
       );
       setSuccess(hash);
