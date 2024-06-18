@@ -3,7 +3,11 @@ import Confirm from "@/components/faucet/Confirm";
 import Confirm2 from "@/components/faucet/Confirm2";
 
 async function fetcher(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    next: {
+      revalidate: 600,
+    },
+  });
   return res.json();
 }
 async function Page({ params }: { params: { network: network } }) {
