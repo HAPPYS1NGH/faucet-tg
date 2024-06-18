@@ -3,10 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { TmaSDKProvider } from "@/components/tma";
 import "@rainbow-me/rainbowkit/styles.css";
-import Header from "@/components/shared/Header";
+const Header = dynamic(() => import("@/components/shared/Header"), {
+  ssr: false,
+});
 import Footer from "@/components/shared/Footer";
 const inter = Inter({ subsets: ["latin"] });
 import Web3ModalProvider from "@/context";
+import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
   title: "My Telegram Mini App",
