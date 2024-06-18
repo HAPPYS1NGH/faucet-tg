@@ -69,22 +69,30 @@ export const dripTokensToAddress = async (
         // Convert the username to bytes
         const usernameEncode = new TextEncoder().encode(username);
         const usernameBytes = `0x${usernameEncode.toString().replace(/,/g, "").replace(/ /g, "").replace(/0x/g, "")}`
+        console.log("username", username);
+        console.log("usernameBytes", usernameBytes);
 
 
-        const { request } = await client.simulateContract({
+        const { request, response } = await client.simulateContract({
             address: contract.address as `0x${string}`,
             abi: contract.abi,
             functionName: "dripTokensToAddress",
             args: [to, usernameBytes, amount.toString()],
         });
+        console.log("response", response);
+
         console.log("request", request);
         const hash = await client.writeContract(request);
 
         console.log("hash", hash);
         return hash;
-    } catch (error) {
-        console.error("Error in dripTokensToAddress", error);
-        return false;
+    } catch (error: any) {
+
+        console.log("Error in dripTokensToAddress \n");
+        console.log(error);
+        console.log("Error in dripTokensToAddress Meta\n");
+        console.log(error.metaMessages[0]);
+        return error?.metaMessages ? error?.metaMessages[0] : "Error in dripTokensToAddress: ";
     }
 };
 
@@ -97,6 +105,8 @@ export const canDripTokens = async (
 ): Promise<true | string> => {
     const usernameEncode = new TextEncoder().encode(username);
     const usernameBytes = `0x${usernameEncode.toString().replace(/,/g, "").replace(/ /g, "").replace(/0x/g, "")}`
+    console.log("username", username);
+    console.log("usernameBytes", usernameBytes);
 
     try {
         // Check if the address has already received tokens in the last 24 hours

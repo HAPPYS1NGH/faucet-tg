@@ -102,6 +102,7 @@ function Confirm2({ network }: { network: string }) {
         setError(checkResult);
         mainBtn.hideLoader();
         mainBtn.setBgColor("#12AAdf");
+
         return;
       }
 
@@ -111,9 +112,18 @@ function Confirm2({ network }: { network: string }) {
         10000000000000000n,
         networkName
       );
+      if (hash.substring(0, 2) !== "0x") {
+        setError(hash);
+        mainBtn.hideLoader();
+        mainBtn.setBgColor("#12AAdf");
+        return;
+      }
       console.log("Hash", hash);
       setSuccess(hash);
-    } catch (error) {}
+    } catch (error: any) {
+      console.error("Error in dripTokensToAddress", error);
+      setError(error?.metaMessages[0]);
+    }
     mainBtn.setBgColor("#12AAdf");
     mainBtn.hideLoader();
   }
