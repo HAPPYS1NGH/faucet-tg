@@ -1,13 +1,15 @@
 import { arbitrumSepoliaClient } from "@/lib/client";
 import { getLastTransactionTimestampForAddress } from "@/lib/arbitrumSdk";
+import { ARBITRUM_SEPOLIA } from "@/constants/address";
 
 export async function GET() {
     try {
         console.log("arbitrumSepoliaClient", arbitrumSepoliaClient);
 
-        const [blockNumber, rawGasPrice] = await Promise.all([
+        const [blockNumber, rawGasPrice, faucetData] = await Promise.all([
             arbitrumSepoliaClient.getBlockNumber(),
             arbitrumSepoliaClient.getGasPrice(),
+            arbitrumProcessAddress(ARBITRUM_SEPOLIA)
         ]);
 
         const gasPriceInGwei = parseFloat(rawGasPrice.toString()) / 1e9;
@@ -15,11 +17,12 @@ export async function GET() {
 
         console.log("blockNumber", blockNumber.toString());
         console.log("gasPrice", formattedGasPrice);
+        console.log("faucetData", faucetData);
 
-        return Response.json({ blockNumber: blockNumber.toString(), gasPrice: formattedGasPrice });
+        return Response.json({ blockNumber: blockNumber.toString(), gasPrice: formattedGasPrice, lastActive: faucetData.lastActive, balance: faucetData.balance });
     } catch (err) {
         console.error("error", err);
-        return Response.json({ blockNumber: 0, gasPrice: 0 })
+        return Response.json({ blockNumber: 0, gasPrice: 0, lastActive: "some time ago", balance: "-" })
     }
 }
 
@@ -55,7 +58,7 @@ const arbitrumProcessAddress = async (
         if (!lastActive) {
             return {
                 balance,
-                lastActive: "0",
+                lastActive: "some time ago",
                 timestamp: 0,
                 address,
             };
@@ -103,7 +106,7 @@ const arbitrumProcessAddress = async (
     } catch (e) {
         return {
             balance: "0",
-            lastActive: "0",
+            lastActive: "some time ago",
             timestamp: 0,
             address,
         };

@@ -40,6 +40,10 @@ function Confirm2({ network }: { network: string }) {
     });
     mainBtn.show();
   }
+  useEffect(() => {
+    if (!address) return;
+    setAdd(address);
+  }, [address]);
 
   useEffect(() => {
     if (!mainBtn) return;
@@ -53,6 +57,7 @@ function Confirm2({ network }: { network: string }) {
     mainBtn.disable();
     mainBtn.hide();
     setError(null);
+    setSuccess(null);
   }
 
   async function handleFaucet() {
@@ -62,12 +67,15 @@ function Confirm2({ network }: { network: string }) {
     mainBtn.setBgColor("#72AAdf");
     mainBtn.disable();
 
+    console.log("Username", username);
     if (!username) {
       setError("Username is required" + user?.username);
       mainBtn.hideLoader();
       mainBtn.setBgColor("#12AAdf");
       return;
     }
+    console.log("Address", add);
+
     if (!add) {
       setError("Address is required");
       mainBtn.hideLoader();
@@ -87,18 +95,23 @@ function Confirm2({ network }: { network: string }) {
         username,
         networkName
       );
+
+      console.log("Check Result", checkResult);
+
       if (checkResult !== true) {
         setError(checkResult);
         mainBtn.hideLoader();
         mainBtn.setBgColor("#12AAdf");
         return;
       }
+
       const hash = await dripTokensToAddress(
         add as `0x${string}`,
         username,
         10000000000000000n,
         networkName
       );
+      console.log("Hash", hash);
       setSuccess(hash);
     } catch (error) {}
     mainBtn.setBgColor("#12AAdf");

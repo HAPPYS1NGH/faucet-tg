@@ -31,11 +31,11 @@ async function Page({ params }: { params: { network: network } }) {
           <div className="flex  justify-around items-center  gap-10 mb-10">
             <div className="p-4 rounded-xl bg-moon font-black text-navy ">
               <h4 className="text-xl">Funds Left</h4>
-              <p>0.22 Wei</p>
+              <p>{data.balance}</p>
             </div>
             <div className="p-4 rounded-xl bg-moon font-black text-navy ">
               <h4 className="text-xl">Last Act.</h4>
-              <p>2 PM</p>
+              <p>{data.lastActive}</p>
             </div>
           </div>
         </div>
