@@ -1,5 +1,6 @@
 import React from "react";
 import Confirm from "@/components/faucet/Confirm";
+import Confirm2 from "@/components/faucet/Confirm2";
 
 async function fetcher(url: string) {
   const res = await fetch(url);
@@ -38,7 +39,7 @@ async function Page({ params }: { params: { network: network } }) {
             </div>
           </div>
         </div>
-        <Confirm network={network} />
+        <Confirm2 network={network} />
         {/* <Input name="address" placeholder="0xdb5..." /> */}
       </div>
     </main>

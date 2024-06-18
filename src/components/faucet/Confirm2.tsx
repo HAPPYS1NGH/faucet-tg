@@ -19,14 +19,15 @@ import { Button } from "../ui/button";
 
 import { canDripTokens, dripTokensToAddress } from "@/helpers/contract";
 
-function Confirm({ network }: { network: string }) {
+function Confirm2({ network }: { network: string }) {
   const networkName = "arbitrum-sepolia";
   const mainBtn = useMainButton();
   const { initData: data } = retrieveLaunchParams();
   const user = data?.user;
+  const username = user?.username;
+
   const { address } = useAccount();
   const [add, setAdd] = useState(address);
-  const [username, setUsername] = useState("hhhhhh");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -48,14 +49,10 @@ function Confirm({ network }: { network: string }) {
     };
   }, [mainBtn]);
 
-  // useEffect(() => {
-  //   if (!initData || !initData.user?.username) return;
-  //   setUsername(initData.user?.username);
-  // }, [initData]);
-
   function handleClose() {
     mainBtn.disable();
     mainBtn.hide();
+    setError(null);
   }
 
   async function handleFaucet() {
@@ -64,15 +61,15 @@ function Confirm({ network }: { network: string }) {
     mainBtn.showLoader();
     mainBtn.setBgColor("#72AAdf");
     mainBtn.disable();
-    if (!add) {
-      setError("Address is required");
+
+    if (!username) {
+      setError("Username is required" + user?.username);
       mainBtn.hideLoader();
       mainBtn.setBgColor("#12AAdf");
       return;
     }
-
-    if (!username) {
-      setError("Username is required");
+    if (!add) {
+      setError("Address is required");
       mainBtn.hideLoader();
       mainBtn.setBgColor("#12AAdf");
       return;
@@ -84,10 +81,7 @@ function Confirm({ network }: { network: string }) {
       mainBtn.setBgColor("#12AAdf");
       return;
     }
-
     try {
-      console.log("Faucet Requested");
-
       const checkResult = await canDripTokens(
         add as `0x${string}`,
         username,
@@ -99,34 +93,16 @@ function Confirm({ network }: { network: string }) {
         mainBtn.setBgColor("#12AAdf");
         return;
       }
-
-      // const result = await dripTokensToAddress(
-      //   add as `0x${string}`,
-      //   username,
-      //   5000000000000000n,
-      //   networkName
-      // );
-      // if (typeof result === "string") {
-      //   console.log("Transaction Hash:", result);
-      //   setSuccess("Transaction Hash :" + result);
-      //   mainBtn.setBgColor("#008000");
-      //   mainBtn.disable();
-      //   mainBtn.setParams({
-      //     bgColor: "#12AAdf",
-      //     text: "Get Testnet Tokens",
-      //     isVisible: true,
-      //   });
-      //   setError(null);
-      // } else {
-      //   throw new Error("Failed to send tokens");
-      // }
-    } catch (error: any) {
-      console.error("Error in handleFaucet:", error);
-      setError(error.message || "An unknown error occurred");
-    } finally {
-      mainBtn.setBgColor("#12AAdf");
-      mainBtn.hideLoader();
-    }
+      const hash = await dripTokensToAddress(
+        add as `0x${string}`,
+        "username1",
+        100000000000000n,
+        networkName
+      );
+      setSuccess(hash);
+    } catch (error) {}
+    mainBtn.setBgColor("#12AAdf");
+    mainBtn.hideLoader();
   }
 
   return (
@@ -157,16 +133,17 @@ function Confirm({ network }: { network: string }) {
                   </p>
                 </div>
               </div>
-              <h1 className="mt-2 text-navy">Enter the Address</h1>
+              <h1 className="mt-2 text-navy">Enter the Address @{username}</h1>
               <Input
                 name="address"
                 placeholder="0xdb1.."
-                className="w-full -mb-4"
+                className="w-full "
                 value={add}
                 onChange={(e: any) => setAdd(e.target.value)}
               />
 
               {error && <p className="text-red text-sm">{error}</p>}
+              {success && <p className="text-green text-sm">{success}</p>}
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
@@ -182,4 +159,4 @@ function Confirm({ network }: { network: string }) {
   );
 }
 
-export default Confirm;
+export default Confirm2;
