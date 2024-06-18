@@ -8,7 +8,7 @@ async function fetcher(url: string) {
 }
 async function Page({ params }: { params: { network: network } }) {
   const { network } = params;
-  const data = await fetcher(`http://localhost:3000/api/${network}`);
+  const data = await fetcher(`${process.env.NEXT_PUBLIC_URL}/api/${network}`);
   console.log(data);
 
   return (
