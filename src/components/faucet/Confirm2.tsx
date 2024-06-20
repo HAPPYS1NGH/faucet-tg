@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useAccount } from "wagmi";
-import { useMainButton } from "@tma.js/sdk-react";
+import { useMainButton, useUtils } from "@tma.js/sdk-react";
 import { retrieveLaunchParams } from "@tma.js/sdk";
 
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,14 @@ import {
 } from "@/components/ui/drawer";
 
 import { canDripTokens, dripTokensToAddress } from "@/helpers/contract";
+import { Button } from "../ui/button";
+import { Link2Icon } from "@radix-ui/react-icons";
 
 function Confirm2({ network }: { network: string }) {
   const networkName = "arbitrum-sepolia";
   const mainBtn = useMainButton();
+  const utils = useUtils();
+
   const { initData: data } = retrieveLaunchParams();
   const user = data?.user;
   const username = user?.username;
@@ -181,7 +185,19 @@ function Confirm2({ network }: { network: string }) {
             />
 
             {error && <p className="text-red text-sm">{error}</p>}
-            {success && <p className="text-green text-sm">{success}</p>}
+            {success && (
+              <Button
+                variant={"view"}
+                size={"view"}
+                onClick={() => {
+                  utils.openLink(`https://sepolia.arbiscan.io/tx/${success}`);
+                }}
+                className=" text-moon text-sm flex gap-2 mt-2"
+              >
+                View Transaction
+                <Link2Icon />
+              </Button>
+            )}
           </div>
           <DrawerFooter />
         </DrawerContent>
