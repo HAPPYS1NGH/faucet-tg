@@ -30,7 +30,7 @@ export async function getLastTransactionTimestampForAddress(
                         category: ["external"],
                         order: "desc",
                         withMetadata: true,
-                        excludeZeroValue: true,
+                        excludeZeroValue: false,
                         maxCount: "0x1",
                     },
                 ],
